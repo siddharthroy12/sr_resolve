@@ -2,6 +2,8 @@
 
 A simple single header C libary for AABB Collision detection and resolution
 
+![](./demo.gif)
+
 ## Structs
 
 ```c
