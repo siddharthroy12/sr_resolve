@@ -26,3 +26,7 @@ sr_check_collision_recs(sr_rec rec1, sr_rec rec2);
 sr_get_collision_rec(sr_rec rec1, sr_rec rec2);
 sr_rec sr_resolver_rects_collision(sr_rec static_rec, sr_rec rec_to_move);
 ```
+
+## Example
+Here is a demo
+https://github.com/siddharthroy12/sr_resolve_example
