@@ -121,7 +121,7 @@ static sr_vec2 sr_get_center_distance_vec(sr_rec rec1, sr_rec rec2) {
     return sr_vec2_normalize(sr_vector2_sub(rec2_center, rec1_center));
 }
 
-//	Takes two rects and resolve the position of the second one
+//Takes two rects and resolve the position of the second one
 static sr_rec sr_resolver_rects_collision(sr_rec static_rec, sr_rec rec_to_move) {
 	if (!sr_check_collision_recs(static_rec, rec_to_move)) {
 		return rec_to_move;
@@ -146,6 +146,30 @@ static sr_rec sr_resolver_rects_collision(sr_rec static_rec, sr_rec rec_to_move)
 
 		return rec_copy;
 	}
+}
+
+// Move and collide rect with rects
+static sr_rec sr_move_and_collide(sr_rec *static_recs, int number_of_recs, sr_rec rec_to_move, sr_vec2 velocity) {
+    sr_rec before_move = rec_to_move;
+
+    rec_to_move.x += velocity.x;
+    rec_to_move.y += velocity.y;
+
+    sr_rec result = rec_to_move;
+
+    for (int i = 0; i < number_of_recs; i++) {
+        result = sr_resolver_rects_collision(static_recs[i], result);
+    }
+
+    if (result.x == before_move.x && result.y == before_move.y) {
+        result.x += velocity.x;
+        result.y += velocity.y;
+        for (int i = (number_of_recs-1); i > -1; i--) {
+            result = sr_resolver_rects_collision(static_recs[i], result);
+        }
+    }
+
+    return result;
 }
 
 #endif
