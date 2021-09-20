@@ -1,6 +1,6 @@
 # sr_resolve.h
 
-A simple single header C libary for AABB Collision detection and resolution
+A simple single header C/C++ Library for AABB Collision detection and resolution
 
 ![](./demo.gif)
 
