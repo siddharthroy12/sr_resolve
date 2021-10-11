@@ -1,8 +1,8 @@
-// A simple AABB Collision resolver that will work for most games
-// Author - siddharthroy12/@siddharthroy12
+// sr_resolve.h - v1.0 - Swept AABB collision resolver - Siddharth Roy 2021
 
 #ifndef SR_RESOLVE_H
 #define SR_RESOLVE_H
+
 #include <math.h>
 #include <stdio.h>
 
@@ -11,9 +11,9 @@
 
 typedef struct sr_rec {
 	float x;
-  	float y;
-  	float width;
-  	float height;
+	float y;
+	float width;
+	float height;
 } sr_rec;
 
 typedef struct sr_vec2 {
@@ -32,45 +32,45 @@ typedef struct sr_sort_pair {
 } sr_sort_pair;
 
 void swap_float(float *vec1, float *vec2) {
-  	float temp = *vec1;
-  	*vec1 = *vec2;
-  	*vec2 = temp;
+	float temp = *vec1;
+	*vec1 = *vec2;
+	*vec2 = temp;
 }
 
 // Get the length of a vector
 float sr_vec2_length(sr_vec2 v) {
 	float result = sqrtf((v.x*v.x) + (v.y*v.y));
-  	return result;
+	return result;
 }
 
 // Scale a vector by a given float value
 static sr_vec2 sr_vec2_scale(sr_vec2 v, float scale) {
-  	return (sr_vec2){ v.x*scale, v.y*scale };
+	return (sr_vec2){ v.x*scale, v.y*scale };
 }
 
 // Divide two vectors
 static sr_vec2 sr_vec2_divide(sr_vec2 v1, sr_vec2 v2) {
-  	return (sr_vec2){ v1.x/v2.x, v1.y/v2.y };
+	return (sr_vec2){ v1.x/v2.x, v1.y/v2.y };
 }
 
 // Multiply two vectors
 static sr_vec2 sr_vec2_multiply(sr_vec2 v1, sr_vec2 v2) {
-  	return (sr_vec2){ v1.x*v2.x, v1.y*v2.y };
+	return (sr_vec2){ v1.x*v2.x, v1.y*v2.y };
 }
 
 // Normalize a vector
 static sr_vec2 sr_vec2_normalize(sr_vec2 v) {
-  	return sr_vec2_scale(v, 1 / sr_vec2_length(v));
+	return sr_vec2_scale(v, 1 / sr_vec2_length(v));
 }
 
 // Substract two vectors
 static sr_vec2 sr_vector2_sub(sr_vec2 v1, sr_vec2 v2) {
-  	return (sr_vec2){ v1.x - v2.x, v1.y - v2.y };
+	return (sr_vec2){ v1.x - v2.x, v1.y - v2.y };
 }
 
 // Add two vectors
 static sr_vec2 sr_vector2_add(sr_vec2 v1, sr_vec2 v2) {
-  	return (sr_vec2){ v1.x + v2.x, v1.y + v2.y };
+	return (sr_vec2){ v1.x + v2.x, v1.y + v2.y };
 }
 
 // Check collision between two rectangles
@@ -152,50 +152,40 @@ static bool sr_dynamic_rect_vs_rect(const sr_rec in, const sr_rec target, sr_vec
     expanded_target.height = target.height + in.height;
 
     if (sr_check_ray_vs_rec_collision(
-      (sr_ray2){
-        (sr_vec2){
-          in.x + (in.width/2),
-          in.y + (in.height/2)
-        },
-        sr_vec2_scale(vel, delta)
-      },
-      expanded_target,
-      contact_point,
-      contact_normal,
-      contact_time
+    	(sr_ray2){
+    		(sr_vec2){
+    		  	in.x + (in.width/2),
+    		  	in.y + (in.height/2)
+    		},
+    		sr_vec2_scale(vel, delta)
+    	},
+    	expanded_target,
+    	contact_point,
+    	contact_normal,
+    	contact_time
     )) {
-      if (*contact_time <= 1.0f && *contact_time >= -1.0f) return true;
+    	if (*contact_time <= 1.0f && *contact_time >= -1.0f) return true;
     }
 
     return false;
 }
 
+// Used for sorting obstacles
 void sr_sort_indexes(sr_sort_pair *times, int length) {
     sr_sort_pair key;
     int i, j;
 
     for (i = 1; i < length; i++) {
-      key = times[i];
-      j = i - 1;
+    	key = times[i];
+    	j = i - 1;
 
-      while(j >= 0 && times[j].time > key.time) {
-        times[j+1] = times[j];
-        j = j -1;
-      }
+    	while(j >= 0 && times[j].time > key.time) {
+    		times[j+1] = times[j];
+    		j = j -1;
+    	}
 
-      times[j + 1] = key;
-
+    	times[j + 1] = key;
     }
-
-    // for (int i = 0; i < length; ++i) {
-    //   for (int j = i + 1; j < length; ++j) {
-    //     if (times[i].time > times[j].time) {
-    //       key =  times[i];
-    //       times[i] = times[j];
-    //       times[j] = key;
-		// 		}
-		// 	}
-    // }
 }
 
 static void sr_move_and_slide(sr_rec *obstacles, int obstacles_length, sr_vec2 hitbox, sr_vec2 *vel, sr_vec2 *pos , float delta) {
@@ -203,35 +193,46 @@ static void sr_move_and_slide(sr_rec *obstacles, int obstacles_length, sr_vec2 h
 	sr_vec2 cp, cn;
 	float time = 0;
 
-  	sr_rec hitbox_rec = {
-  	  	pos->x - (hitbox.x/2),
-  	  	pos->y - (hitbox.y/2),
-  	  	hitbox.x,
-  	  	hitbox.y
-  	};
+	sr_rec hitbox_rec = {
+		pos->x - (hitbox.x/2),
+		pos->y - (hitbox.y/2),
+		hitbox.x,
+		hitbox.y
+	};
 
+	sr_rec broadface = {
+        .x = vel->x * delta > 0 ? hitbox_rec.x : hitbox_rec.x + vel->x * delta,
+        .y = vel->y * delta > 0 ? hitbox_rec.y : hitbox_rec.y + vel->y * delta,
+        .width = vel->x * delta > 0 ? vel->x * delta + hitbox_rec.width : hitbox_rec.width - vel->x * delta,
+        .height = vel->y * delta > 0 ? vel->y * delta + hitbox_rec.height : hitbox_rec.height -  vel->y * delta
+    };
 
 	for (int i = 0; i < obstacles_length; i++) {
-    	sr_dynamic_rect_vs_rect(hitbox_rec, obstacles[i], *vel, &cp, &cn, &time, delta);
-    	times[i].index = i;
-    	times[i].time = time;
+		sr_dynamic_rect_vs_rect(hitbox_rec, obstacles[i], *vel, &cp, &cn, &time, delta);
+		times[i].index = i;
+		times[i].time = time;
   	}
 
+	// TODO: Check what obstacles are in the way using broadface and then sort only them
+	// Sorting obstacles because stopping issue
 	sr_sort_indexes(times, obstacles_length);
 
-	for (int i = 0; i < obstacles_length; i++) {  
-    	if (sr_dynamic_rect_vs_rect(hitbox_rec, obstacles[times[i].index], *vel, &cp, &cn, &time, delta)) {
-    	    pos->x = cp.x;
-    	    pos->y = cp.y;
+	for (int i = 0; i < obstacles_length; i++) {
+		// Broadface check for every obstacles
+		if (sr_check_rec_vs_rec_collision(broadface, obstacles[times[i].index])) {
+			// Resolve collision and velocity for every obstacles
+			if (sr_dynamic_rect_vs_rect(hitbox_rec, obstacles[times[i].index], *vel, &cp, &cn, &time, delta)) {
+				pos->x = cp.x;
+				pos->y = cp.y;
 
-			if (fabs(cn.x)) {
-    	    	vel->x = 0;
-    	    }
-
-    	    if (fabs(cn.y)) {
-    	    	vel->y = 0;
-    	    }
-    	}
+				if (fabs(cn.x)) {
+					vel->x = 0;
+				}
+				if (fabs(cn.y)) {
+					vel->y = 0;
+				}
+			}
+		}
   	}
 }
 #endif
