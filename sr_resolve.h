@@ -31,14 +31,14 @@ typedef struct sr_sort_pair {
     float time;
 } sr_sort_pair;
 
-void swap_float(float *vec1, float *vec2) {
+static void swap_float(float *vec1, float *vec2) {
 	float temp = *vec1;
 	*vec1 = *vec2;
 	*vec2 = temp;
 }
 
 // Get the length of a vector
-float sr_vec2_length(sr_vec2 v) {
+static float sr_vec2_length(sr_vec2 v) {
 	float result = sqrtf((v.x*v.x) + (v.y*v.y));
 	return result;
 }
@@ -171,7 +171,7 @@ static bool sr_dynamic_rect_vs_rect(const sr_rec in, const sr_rec target, sr_vec
 }
 
 // Used for sorting obstacles
-void sr_sort_indexes(sr_sort_pair *times, int length) {
+static void sr_sort_indexes(sr_sort_pair *times, int length) {
     sr_sort_pair key;
     int i, j;
 
