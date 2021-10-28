@@ -6,8 +6,8 @@
 #include <math.h>
 #include <stdio.h>
 
-#define max(x, y) (x > y ? x : y)
-#define min(x, y) (x > y ? y : x)
+#define SR_RESOLVE_MAX(x, y) (x > y ? x : y)
+#define SR_RESOLVE_MIN(x, y) (x > y ? y : x)
 
 typedef struct sr_rec {
 	float x;
@@ -115,10 +115,10 @@ static bool sr_check_ray_vs_rec_collision(const sr_ray2 ray, const sr_rec target
 	if (t_near.x > t_far.y || t_near.y > t_far.x) return false;
 
     // Closest 'time' will be the first contact
-    *t_hit_near = max(t_near.x, t_near.y);
+    *t_hit_near = SR_RESOLVE_MAX(t_near.x, t_near.y);
 
     // Furthest 'time' is contact on opposite side of target
-    float t_hit_far = min(t_far.x, t_far.y);
+    float t_hit_far = SR_RESOLVE_MIN(t_far.x, t_far.y);
 
     // Reject if ray direction is pointing away from object
     if (t_hit_far < 0) return false;
